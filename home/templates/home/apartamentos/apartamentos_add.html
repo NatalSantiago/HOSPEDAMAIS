@@ -1,0 +1,132 @@
+{% extends "home/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+{% load widget_tweaks %}
+
+{% load static %}
+
+{% csrf_token %}
+
+{% block extrahead %}
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>  
+{% endblock %}
+
+
+<div class="card">
+    <div class="card-body">
+        <h4>ADICIONAR APARTAMENTO<h4>
+        <hr>
+        {{ form.media }}        
+        <form action="{% url 'apartamentos_add' %}" method='POST'>
+            {% csrf_token %}
+            <div class="form-row">
+              <div class="form-group col-md-6 mb-0">
+                {{ form.descricao|as_crispy_field }}
+              </div>
+              <div class="form-group col-md-2 mb-0">
+                {{ form.tipoapart|as_crispy_field }}
+              </div>
+              <div class="form-group col-md-2 mb-0">
+                {{ form.ramal|as_crispy_field }}
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-2 mb-0">
+                {{ form.valordiaria|as_crispy_field }}
+              </div>
+              <div class="form-group col-md-2 mb-0">
+                {{ form.qtdpessoas|as_crispy_field }}
+              </div>
+              <div class="form-group col-md-2 mb-0">
+                {{ form.valorporexcedente|as_crispy_field }}
+              </div>
+              <div class="form-group col-md-4 mb-0">
+                {{ form.tipostatus|as_crispy_field }}
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-10 mb-0">
+                {{ form.observacao|as_crispy_field }}
+              </div>
+            </div>
+            <!-- ###########################################################  -->
+            <br>
+            <button id="btn-save" class="btn btn-primary" type="submit" name="action" value="save_add">Salvar e adicionar outro</button>
+            <button class="btn btn-success" type="submit" name="action" value="save_exit">Salvar e sair</button>
+            <a href="{% url 'apartamentos' %}" class="btn btn-danger">Cancelar</a>
+        </form>
+    </div>
+</div>    
+
+<!-- ###### Ativar o prescionamento da tecla ENTER ##################  -->
+<script src="{% static 'js/custom.js' %}"></script>
+<script>
+  enableFormTabbing();
+</script>
+<!-- ########################## FIM ################################# -->
+
+
+<!-- ########### Colocar o foco no campo descricao ##################  -->
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+   document.getElementById('{{ form.descricao.id_for_label }}').focus();
+   });
+</script>
+<!-- ########################## FIM ################################# -->
+
+{% block extrascripts %}
+<script>
+
+$(document).ready(function() {
+  var descricaoField = $('#{{ form.descricao.id_for_label }}');
+
+  descricaoField.blur(function() {
+    var descricaoValue = descricaoField.val().trim().toUpperCase();
+
+    if (descricaoValue === '') {
+      return;
+    }
+
+    $.ajax({
+      url: '{% url "verificaSeApartamentoExite" %}',
+      method: 'POST',
+      data: {
+        'descricao': descricaoValue,
+        'csrfmiddlewaretoken': '{{ csrf_token }}',
+      },
+      success: function(data) {
+        if (data.descricao_existente) {
+          descricaoField.val(''); // Limpa o valor do campo nome
+          descricaoField.focus(); // Volta o foco para o campo nome
+          Swal.fire({
+            title: descricaoValue,
+            text: "Esta acomodação já esta cadastrada  ! !",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Editar esta acomodação',
+
+          }).then((result) => {
+             if (result.isConfirmed) {
+               var apartId = data.id;
+               var url = "/apartamentos/edit/" + apartId;
+               window.location.href = url;
+             }
+          })
+          $(this).focus();
+        }
+      },
+    });
+  });
+});
+</script>
+
+{% endblock %}
+
+{% endblock %}

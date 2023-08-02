@@ -1,0 +1,15 @@
+Observações para instalar um app corretamento no pythonanywhere..
+
+1. pip install static
+
+2. pip install pillow
+
+3. pip install django-money
+
+4. pip install -r requirements.txt
+
+5. Não esqueçer de copiar os arquivos static e media
+
+  - cp -avf hospeda-original/static hospedamais/
+
+  - cp -avf hospeda-original/media hospedamais/

@@ -1,0 +1,389 @@
+{% extends "home/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% load widget_tweaks %}
+
+{% load static %}
+
+{% block extrahead %}
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>  
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>  
+
+  <!-- Select2 CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css">
+
+  <!-- Select2 JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+
+
+<br>
+<style>
+   /*the container must be positioned relative:*/
+   .autocomplete {
+   position: relative;
+   display: inline-block;
+  }
+
+  input {
+    border: 1px solid transparent;
+    background-color: #f1f1f1;
+    padding: 8px;
+    font-size: 16px;
+  }
+
+  input[type=text] {
+    background-color: #f1f1f1;
+    width: 100%;
+  }
+
+  input[type=number] {
+    background-color: #f1f1f1;
+    width: 100%;
+  }
+
+  input[type=submit] {
+    background-color: DodgerBlue;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .autocomplete-items {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+    /*position the autocomplete items to be the same width as the container:*/
+    top: 100%;
+    left: 0;
+    right: 0;
+  }
+
+  .autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+    background-color: #fff;
+    border-bottom: 1px solid #d4d4d4;
+  }
+
+  /*when hovering an item:*/
+  .autocomplete-items div:hover {
+    background-color: #e9e9e9;
+  }
+
+  /*when navigating through the items using the arrow keys:*/
+  .autocomplete-active {
+    background-color: DodgerBlue !important;
+    color: #ffffff;
+  }
+
+  .container-centralizado {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+
+.autocomplete {
+    margin-right: 10px;
+    position: relative;
+    display: inline-block;
+    
+}  
+
+</style>
+
+
+<br>
+<!-- container inicial -->
+<div id="contenirInicial" class="container mt-5" style="max-width: 800px; overflow-y: auto;">
+    <div class="card p-3 border-dark">
+      <div style="background-color: #ADD8E6; padding: 10px; text-align: center;">
+          <i class="fas fa-shopping-basket"></i> 
+          <span style="text-align: center; display: inline-block;">Lançamento Produtos/Serviços - [ Apartamento: {{ nomeApartamento }} ]</span>
+      </div>
+      <hr>
+      <div class="text-right text-danger">
+       <div class="text-dark mt-2 mb-2 ">
+         <div style="height: 270px; overflow-y: auto; overflow-x: hidden;">
+            {{ form.media }}        
+            <form action="{% url 'LancarNovoItemHospede' movID=movID %}?nomeApartamento={{ nomeApartamento }}&apartID={{ apartID }}&movID={{ movID }}" method='POST'>
+               {% csrf_token %}
+              <br>
+              <div class="form-row">
+                <div class="form-group col-md-6 mb-0" style="text-align: left;">
+                  <p class="inline" style="text-align: left">Descrição</p>
+                  <select type="text" id="myInput" name="myInput" class="form-control select2" autofocus onchange="verificarValor()">
+                    <option value=""></option>
+                    {% for produto in intensConsumoList %}
+                      <option value= "{{ produto.text }}"> {{ produto.text }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="form-group col-md-2 mb-0">
+                  <p class="inline" style="text-align: right">Preço:</p>
+                  <input id="precoItem" type="number" name="precoItem" placeholder="Preço" class="inline" readonly style="text-align: right">
+                </div>
+                <div class="form-group col-md-2 mb-0">
+                  <p class="inline" style="text-align: center">Qtd.</p>
+                  <input id="qtdItem" type="text" name="qtdItem" placeholder="Qtd." class="inline" style="text-align: center">
+                </div>
+                <div class="form-group col-md-2 mb-0">
+                  <p class="inline" style="text-align: right">Preço Total</p>
+                  <input id="precoTotal" type="number" name="precoTotal" placeholder="Preço toal" class="inline" readonly style="text-align: right">
+                </div>
+              </div>
+              <hr>
+              <br>
+              <div class="text-right" style="margin-top: -10px;">
+                <button id="btn-add" class="btn btn-primary btn-sm" name="action" value="save_add" disabled>Salvar e adicionar outro</button>
+                <button id="btn-voltar" class="btn btn-primary btn-sm" name="action" value="save_voltar" disabled>Salvar e voltar</button>
+                <button id="btn-exit" class="btn btn-primary btn-sm" name="action" value="save_exit" disabled>Salvar e sair</button>
+                <a href="{% url 'itens_consumo_aparts_apartamento' apartID %}" class="btn btn-danger btn-sm">Cancelar</a>
+              </div>
+            </form>
+          </div>
+        </div>
+    </div>
+   </div>
+</div>
+
+<!-- Formatação Style do Select2 dentro do modal  - ( Start ) -->
+<style>
+
+.form-group p {
+  line-height: 38px; /* ajuste este valor de acordo com a altura dos campos de entrada */
+}
+
+.modal-dialog {
+  max-width: 670px; /* ajuste este valor de acordo com a largura desejada */
+  width: 100%; /* ajuste este valor de acordo com a largura desejada */
+}
+
+  /* Diminui o altura entre a descrição do campo */
+.inline { display: inline-block; margin-right: 10px; margin-bottom: 5px; }
+
+#ModalCheckinReserva .nav-link.active {
+  background-color: #ADD8E6; /* azul claro */
+  color: #000; /* preto */  
+  }
+
+.select2-selection--single { background-color: #f2f2f2 !important; }
+.select2-container { height: auto !important; }
+.select2-selection--single { height: auto !important; }
+.select2-selection__rendered { height: auto !important; }
+.select2 { height: auto !important; }
+</style>
+
+<!-- Inicia o Select2 myHospede dentro do modal  - ( Start ) -->
+<script>
+$(document).ready(function() {
+    $('#myInput').select2({
+      placeholder: "Selecione o item",
+    });
+    $('#myInput').on('keyup click', function(e) {
+      if (e.keyCode === 13 || e.type === 'click') {
+        $('#myInput').select2('open');
+      }
+    });
+    $('#myInput').select2('focus');
+});
+</script>
+<!-- Inicia o Select2 myHospede dentro do modal  - ( End ) -->
+
+<!-- Inicia função buscar preço do item  - ( Start ) -->
+<script>
+$(document).ready(function() {
+  // Detectar a mudança na opção selecionada do select
+  $('#myInput').on('change', function() {
+    var itemId = $(this).val(); // Pegar o valor da opção selecionada
+    if (itemId) {
+      // Fazer a requisição AJAX para buscar o preço de venda do item
+      $.ajax({
+        url: '/buscar-preco-item/' + itemId + '/', // URL da view que busca o preço do item
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+          if (data.precoVenda) {
+            // Atribuir o preço de venda ao campo de input
+            $('#precoItem').val(data.precoVenda);
+          } else {
+            // Limpar o campo de input se o preço de venda não for encontrado
+            $('#precoItem').val('');
+          }
+        },
+        error: function(xhr, textStatus, errorThrown) {
+          console.log('Erro na requisição AJAX: ' + errorThrown);
+        }
+      });
+    } else {
+      // Limpar o campo de input se nenhuma opção for selecionada
+      $('#precoItem').val('');
+    }
+  });
+  
+  // Detectar a tecla Enter pressionada após a seleção do item no select
+  $('#myInput').on('keydown', function(e) {
+    if (e.which == 13) { // Código da tecla Enter é 13
+      e.preventDefault(); // Prevenir o comportamento padrão da tecla Enter
+      $('#qtdItem').focus(); // Direcionar o foco para o campo de input qtdItem
+    }
+  });
+});
+</script>
+<!-- Inicia função buscar preço do item  - ( End ) -->
+
+<script>
+$("#myInput").on("select2:close", function() {
+  var valorSelecionado = $(this).val(); // obtém o valor selecionado no Select2
+  if (valorSelecionado !== "") { // verifica se algum valor foi selecionado
+    document.getElementById("btn-add").disabled = false; // habilita o botão "submit"
+    document.getElementById("btn-voltar").disabled = false; // habilita o botão "submit"
+    document.getElementById("btn-exit").disabled = false; // habilita o botão "submit"
+    document.getElementById("qtdItem").focus(); // coloca o foco no campo "qtdItem"
+  } else {
+    document.getElementById("btn-add").disabled = true; // desabilita o botão "submit"
+    document.getElementById("btn-voltar").disabled = true; // desabilita o botão "submit"
+    document.getElementById("btn-exit").disabled = true; // desabilita o botão "submit"
+  }
+});
+</script>
+
+
+<!-- ###### Ativar o prescionamento da tecla ENTER ##################  -->
+<script src="{% static 'js/custom.js' %}"></script>
+<script>
+  enableFormTabbing();
+</script>
+<!-- ########################## FIM ################################# -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  document.getElementById("myInput").focus();
+});
+</script>
+
+<script>
+function verificarValor() {
+  var valorDigitado = document.getElementById("myInput").value; // obter o valor digitado
+
+  if (valorDigitado !== "") { // verificar se o valor digitado não está em branco e se existe na lista
+      document.getElementById("myInput").focus();
+  } else if (valorDigitado !== "") { // verifica se o campo "myInput" não está em branco
+      document.getElementById("btn-add").disabled = false; // habilita o botão "submit"
+      document.getElementById("btn-voltar").disabled = false; // habilita o botão "submit"
+      document.getElementById("btn-exit").disabled = false; // habilita o botão "submit"
+      document.getElementById("qtdItem").focus(); // coloca o foco no campo "qtdItem"
+  } else {
+      document.getElementById("btn-add").disabled = true; // habilita o botão "submit"
+      document.getElementById("btn-voltar").disabled = true; // habilita o botão "submit"
+      document.getElementById("btn-exit").disabled = true; // habilita o botão "submit"
+  }
+}
+</script>
+
+
+<!-- ###### Não permitir o campo qtdItem em branco ou negativo ##################  -->
+
+<script>
+// Seleciona o campo "qtdItem" e "myInput"
+var qtdItem = document.getElementById("qtdItem");
+var myInput = document.getElementById("myInput");
+
+// Adiciona um ouvinte de evento para verificar o valor do campo quando o foco sair dele
+qtdItem.addEventListener("blur", function() {
+  // Obtém o valor atual do campo
+  var valor = parseInt(this.value);
+  var descricao = myInput.value; // Obtém a descrição do item
+
+  // Verifica se o valor é menor do que zero, igual a zero ou está vazio
+  if (valor <= 0 || this.value === "") {
+    // Exibe uma mensagem de erro personalizada usando SweetAlert2
+    Swal.fire({
+      icon: "error",
+      title: "Erro!",
+      text: "A quantidade tem que ser maior que 0!",
+      confirmButtonText: "OK"
+    }).then(function(result) {
+      // Coloca o foco de volta no campo "qtdItem"
+      qtdItem.focus();
+    });
+  } else {
+    // Realiza uma requisição AJAX para verificar o estoque
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/verificar_estoque/' + encodeURIComponent(descricao) + '/' + valor, true);
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        var response = JSON.parse(xhr.responseText);
+        if (response.estoqueDisponivel === false) {
+          // Exibe uma mensagem de erro personalizada usando SweetAlert2
+          Swal.fire({
+            icon: "error",
+            title: "Erro!",
+            html: "Não há estoque suficiente!<br><br>Descrição: " + descricao + "<br>Estoque disponível: " + response.estoqueAtual,
+            confirmButtonText: "OK"
+          }).then(function(result) {
+            // Define o valor do campo "qtdItem" como 0
+            qtdItem.value = 0;
+            // Coloca o foco de volta no campo "qtdItem"
+            qtdItem.focus();
+          });
+        }
+      }
+    };
+    xhr.send();
+  }
+});
+
+</script>
+
+<!-- ###### FIM Não permitir o campo qtdItem em branco ou negativo ##################  -->
+
+<!-- ########################## Atualizar preço Total ################################# -->
+<script>
+  // Espera que o DOM termine de carregar
+  document.addEventListener('DOMContentLoaded', function() {
+    // Obtém os campos de preco_item, qtd_lancamento e valor_total
+    const preco_item_field = document.getElementById('precoItem');
+    const qtd_lancamento_field = document.getElementById('qtdItem');
+    const valor_total_field = document.getElementById('precoTotal');
+
+    // Define um manipulador de eventos para o campo de qtd_lancamento
+    qtd_lancamento_field.addEventListener('input', function() {
+      // Obtém o valor do campo de qtd_lancamento
+      const qtd_lancamento = parseFloat(this.value);
+
+      // Obtém o valor do campo de preco_item
+      const preco_item = parseFloat(preco_item_field.value);
+
+      // Verifica se o valor de qtd_lancamento é vazio
+      if (!qtd_lancamento) {
+        // Define o valor do campo de precoTotal como vazio
+        valor_total_field.value = "";
+        return;
+      }
+
+      // Calcula o valor total
+      const valor_total = qtd_lancamento * preco_item;
+
+      // Atualiza o campo de valor_total com o novo valor
+      valor_total_field.value = valor_total.toFixed(2);
+    });
+  });
+</script>
+
+<!-- ################### Formatar preço do item ##################################### -->
+
+<!-- ################### Formatar preço total ##################################### -->
+
+{% endblock %}
+

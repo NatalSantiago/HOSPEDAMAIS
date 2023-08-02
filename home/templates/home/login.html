@@ -1,0 +1,162 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+  <title>Login - HOSPEDA-MAIS </title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.0/sweetalert.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon" />
+
+
+  <style>
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: #92a8d1;
+      background-image: url({% static 'img/background.jpg' %});
+      background-size: cover;
+      background-position: center;
+    }
+
+.card {
+  border-radius: 15px;
+
+ 
+}
+
+  </style>
+
+
+
+</head>
+ 
+{% block pageContent %}
+
+<div class="row justify-content-center align-items-center" style="height: 100vh;">
+  <div class="col-lg-4 col-md-3 col-sm-12 col-xs-12">
+    <div class="card card-default rounded-10px shadow">
+    <div class="card-header d-flex flex-column align-items-center">
+      <img src="{% static 'img/MeuLogo.png' %}" class="mx-auto my-3" width="40%">
+      <h4 class="card-title"><b>Login</b></h4>
+    </div>
+    <div class="card-body">
+        <div class="container-fluid">
+            <form id="login-user">
+                {% csrf_token %}
+                <div class="mdc-layout-grid">
+                    <div class="mdc-layout-grid__inner">
+                        <div class="form-group mb-3">
+                            <label for="username" class="control-label">Usuário</label>
+                            <input type="text" class="form-control rounded-0" name="username" id="username" required="required">
+                        </div>
+                        <div class="form-group col-md-12 mb-0" style="text-align: left;">
+                          <div class="input-group-prepend">
+                            <label for="password" class="control-label">Senha</label>
+                            <div class="input-group align-items-center">
+                              <input type="password" class="form-control rounded-0" name="password" id="password" required="required">
+                              <div class="input-group-append">
+                                <span class="input-group-text" id="show-password">
+                                  <i class="fa fa-eye" style="font-size: 24px; cursor: pointer " id="btn-senha" onclick="mostrarSenha()"></i>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <br>
+                        <div class="form-group mb-3">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div class="col-md-4"></div>
+                                <button class="btn btn-sm rounded-0 btn-primary">Login</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock pageContent %} 
+ 
+{% block ScriptBlock %}
+
+<script>
+function mostrarSenha(){
+    var inputPass = document.getElementById('password')
+    var bntShowPass = document.getElementById('btn-senha')
+
+    if(inputPass.type === 'password'){
+        inputPass.setAttribute('type','text')
+        bntShowPass.classList.replace('fa-eye', 'fa-eye-slash')
+    }else{
+        inputPass.setAttribute('type','password')
+        bntShowPass.classList.replace('fa-eye-slash', 'fa-eye')
+    }
+}
+</script>
+
+<!--********************************************************************************-->
+
+<script>
+    $(function() {
+        $('#login-user').submit(function(e) {
+            e.preventDefault();
+            var _this = $(this)
+            $('.err-msg').remove();
+            var el = $('<div>')
+            el.addClass("alert alert-danger err-msg")
+            el.hide()
+            if (_this[0].checkValidity() == false) {
+                _this[0].reportValidity();
+                return false;
+            }
+            $.ajax({
+                headers: {
+                    "X-CSRFToken": '{{csrf_token}}'
+                },
+                url: "{% url 'login-user' %}",
+                data: new FormData($(this)[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST',
+                dataType: 'json',
+                error: err => {
+                    console.log(err)
+                    alert_toast("An error occured", 'error');
+                },
+                success: function(resp) {
+                    if (typeof resp == 'object' && resp.status == 'success') {
+                        el.removeClass("alert alert-danger err-msg")
+                        location.href = "{% url 'inicio' %}"
+                    } else if (resp.status == 'failed' && !!resp.msg) {
+                        el.text(resp.msg)
+                    } else {
+                        el.text("An error occured", 'error');
+                        console.err(resp)
+                    }
+                    _this.prepend(el)
+                    el.show('slow')
+                }
+            })
+        })
+    })
+</script>
+{% endblock ScriptBlock %}

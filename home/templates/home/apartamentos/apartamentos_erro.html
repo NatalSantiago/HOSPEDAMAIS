@@ -1,0 +1,23 @@
+{% extends "home/base.html" %}
+
+{% block content %}
+
+<br>
+<div class="container mt-5" style="max-width: 600px;">
+    <div class="card p-3 border-dark">
+       <div class="text-center text-danger"><i class="far fa-times-circle fa-5x mb-4 mt-2"></i></div>
+       <div class="text-center text-danger">
+           <span>VOCÊ ATINGIU A QTD DE ACOMODAÇÕES REFERENTE A SEU PLANO</span>
+       <div class="text-dark mt-2 mb-2 ">{{ nome_empresa }} / Plano: {{ empresa_plano }} / Acomodações: {{ qtdAparts }}</div>
+   </div>
+   <hr>
+   <span class="text-center text-danger">Entre em contato com o suporte técnio para mudar seu plano</span>
+   <span class="text-center text-danger">Email: natal.santiago.filha@gmail.com / WhatsApp: +55 (63) 9 9225 9154</span>
+   <hr>
+     <form method='post' class="d-flex justify-content-center">
+     {% csrf_token %}
+        <a href="{% url 'apartamentos' %}" class="btn btn-primary">   OK   </a>
+     </form>
+   </div>
+</div>
+{% endblock %}

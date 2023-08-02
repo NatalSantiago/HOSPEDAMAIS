@@ -1,0 +1,248 @@
+{% load static %}
+
+{% load user_agents %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+  <title>HOSPEDA-MAIS</title>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="{% static 'css/all.css' %}">
+  <link rel="stylesheet" href="{% static 'css/adminlte.css' %}">
+  <link rel="stylesheet" href="{% static 'css/meuCSS.css' %}">
+  <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+
+<body class="hold-transition sidebar-mini">
+  <div class="wrapper">
+    <nav class="main-header navbar navbar-expand navbar navbar-expand navbar-dark">
+      <!-- Left navbar links -->
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+        </li>
+
+        <li class="nav-item d-none d-sm-inline-block">
+          <a href="{% url "apartHome" %}" class="nav-link"><i class="fa fa-home" aria-hidden="true"></i>  Home  </a>
+        </li>
+
+        {% if request.user.is_authenticated %}
+          <li class="nav-item d-none d-sm-inline-block">
+            <a href="{% url "hospedes" %}" class="nav-link"><i class="fas fa-users-cog" aria-hidden="true"></i> Hospedes  </a>
+          </li>
+        {% endif %}
+
+
+      </ul>
+      <!-- Right -->
+      <ul class="navbar-nav ml-auto">
+      {% if user.id %}
+        {% if request|is_mobile %}
+          <li class="nav-item me-3 me-lg-0">
+             <a class="nav-link" href="#">[ {{ nome_empresa }} ]</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'logout' %}"><i class="fa fa-sign-out"></i></a>
+          </li>
+        {% else %}
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="#">[ {{ nome_empresa }} ] - Bem vindo(a), {{ user.first_name }} {{user.last_name}}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'logout' %}"> Logout <i class="fa fa-sign-out"></i></a>
+          </li>
+        {% endif %}
+      {% else %}
+         <li class="nav-item">
+           <a class="nav-link" href="{% url 'login' %}"> Login <i class="fa fa-sign-in"></i></a>
+         </li>
+       {% endif %}
+       </ul>
+    </nav>
+  <!-- /.navbar -->
+  <!-- Main Sidebar Container -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-8">
+    <!-- Brand Logo -->
+    <a href="{% url 'inicio' %}" class="brand-link">
+      <img src="{% static 'img/MeuLogoMini.png' %}" width="50px" alt="HOSPEDA-MAIS Logo" style="opacity: .8">
+      <i href="{% url 'inicio' %}" class="brand-text font-weight-light">HOSPEDA-MAIS</i>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar user panel (optional) -->
+
+      {% if user.id %}
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+          <li class="nav-item has-treeview menu-close">
+            <a href="{% url "apartHome" %}" class="nav-link">
+              <i class="fa fa-home" style="font-size: 25px;"></i>
+              <p>
+                Home
+              </p>
+            </a>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      {% endif %}
+
+
+      <!-- Sidebar Menu -->
+
+      {% if request.user.is_authenticated %}
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+          <li class="nav-item has-treeview menu-close">
+            <a href="#" class="nav-link">
+              <i class="fa fa-list-alt" aria-hidden="true"></i>
+              <p>
+                Cadastros Auxiliares
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <!-- Sub-Menus -->
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="fa fa-address-book-o" aria-hidden="true"></i>
+                  <p>
+                  Funcionários
+                  </p>
+               </a>
+              </li>
+              <!-- Sub-Menus -->
+              <li class="nav-item">
+                <a href="{% url "itensConsumo" %}" class="nav-link">
+                  <i class="fa fa-shopping-basket" aria-hidden="true"></i>
+                  <p>
+                  Itens Consumo
+                  </p>
+               </a>
+              </li>
+              <!-- Sub-Menus -->
+              <li class="nav-item">
+                <a href="{% url "apartamentos" %}" class="nav-link">
+                  <i class="fas fa-bed"></i>
+                  <p>
+                  Acomodações
+                  </p>
+               </a>
+              </li>
+              <!-- Sub-Menus -->
+              <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="fa fa-shopping-basket" aria-hidden="true"></i>
+                  <p>
+                  Itens Consignados
+                  </p>
+               </a>
+              </li>
+              <!-- Sub-Menus -->
+            </ul>
+          </li>
+        </ul>
+      </nav>
+
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+          <li class="nav-item has-treeview menu-close">
+            <a href="{% url "hospedes" %}" class="nav-link">
+              <i class="fas fa-users-cog"></i>
+              <p>
+                Cadastro Hóspedes
+              </p>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      {% endif %}
+
+    </div>
+
+  </aside>
+
+  <!-- Botão para ir para o Top -->
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    {% block content %}
+
+    {% endblock %}
+  </div>
+
+
+<footer class="main-footer" style="padding: 2px;">
+  <a href="http://www.m.c.marketing.digital.com.br" target="_blank"> <!-- Adicione este link -->
+    <img src="{% static 'img/MCMARKETINGDIGITAL-375X375.png' %}" alt="Slogan" style="border-radius: 100%; width: 38px; height: 38px; margin-left: 5px; margin-top: 2px; margin-bottom: 2px;">
+    <strong>
+      Copyright &copy; 2023 - M.C.Marketing Digital
+    </strong>
+  </a> <!-- Feche a tag <a> aqui -->
+  Todos os direitos reservados.
+</footer>
+
+<!-- Botão voltar ao top -->
+<button id="btnIrAoTop">
+  <img src="{% static 'img/Ir_ao_Top.png' %}" alt="Topo">
+</button>
+  
+  <script>
+    window.onscroll = function() {
+      scroll();
+    };
+
+    function scroll() {
+      var btn = document.getElementById("btnIrAoTop");
+      if (document.documentElement.scrollTop > 30) {
+        btn.style.opacity = "1";
+        btn.style.transform = "scale(1)";
+      } else {
+        btn.style.opacity = "0";
+        btn.style.transform = "scale(0)";
+      }
+    }
+
+    // Adicione esta função para voltar ao topo quando o botão for clicado
+    document.getElementById("btnIrAoTop").addEventListener("click", function() {
+      document.documentElement.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    });
+  </script>
+</footer>
+
+
+
+</div>
+
+<!-- AdminLTE App -->
+<script src="{% static 'js/adminlte.js' %}"></script>
+<script src="{% static 'js/custom.js' %}"></script>
+
+
+</body>
+</html>
+
+
+<style>
+  form {
+    font-size: 0.8rem;
+    line-height: 1rem;
+  }
+  .form-row {
+    margin-bottom: 0.5rem;
+  }
+</style>
+

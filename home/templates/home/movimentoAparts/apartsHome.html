@@ -1,10 +1,4 @@
-{% extends "home/base.html" %} 
-
-{% load static %} 
-
-{% block content %} 
-
-{% csrf_token %}
+{% extends "home/base.html" %} {% load static %} {% block content %} {% csrf_token %}
 
 <!-- Bootstrap CSS -->
 
@@ -37,7 +31,9 @@
         {% for apartamento in apartamentos %}
         <div class="col-xl-3 col-lg-6 col-md-6 col-12 mb-6">
             <div class="card text-center">
-                <div class="card-headerMeu {% if apartamento.tipostatus == 'Livre' %}bg-success{% elif apartamento.tipostatus == 'Reservado' %}bg-warning{% elif apartamento.tipostatus == 'Ocupado' %}bg-danger{% elif apartamento.tipostatus == 'Em manutenção' %}bg-purple{% endif %}">
+                <div
+                    class="card-headerMeu {% if apartamento.tipostatus == 'Livre' %}bg-success{% elif apartamento.tipostatus == 'Reservado' %}bg-warning{% elif apartamento.tipostatus == 'Ocupado' %}bg-danger{% elif apartamento.tipostatus == 'Em manutenção' %}bg-purple{% endif %}"
+                >
                     <span class="text-white">
                         <!-- Adiciona a classe text-dark para definir a cor do texto como preto -->
                         {% if apartamento.tipostatus == 'Ocupado' %}
@@ -91,7 +87,7 @@
                         class="btn btn-outline-secondary fa fa-sign-in btn-short"
                         data-toggle="modal"
                         data-target="#ModalCheckinReserva"
-                        onclick="setApartamento('{{ apartamento.descricao }}', {{ apartamento.qtdpessoas }})"
+                        onclick="setApartamento('{{ apartamento.descricao }}', '{{ apartamento.qtdpessoas }}')"
                     >
                         Check-In / Reservar
                     </button>
@@ -119,7 +115,7 @@
                             <i class="fa fa-user-circle-o icon-spacing" aria-hidden="true" title="Ficha Nacional de Registro de Hóspedes"></i>
                         </a>
                         <a class="icon-spacing" href="#">
-                            <i class="fa fa-money icon-spacing" aria-hidden="true" title="Débito atual" id="botaoDebitoAtual" data-toggle="modal" data-target="#ModalDebitoAtual" onclick="setApartamentoDebito({{ apartamento.id }})"></i>
+                            <i class="fa fa-money icon-spacing" aria-hidden="true" title="Débito atual" id="botaoDebitoAtual" data-toggle="modal" data-target="#ModalDebitoAtual" onclick="setApartamentoDebito('{{ apartamento.id }}')"></i>
                         </a>
                         <a class="icon-spacing" href="#">
                             <i
@@ -129,11 +125,19 @@
                                 id="botaoMudarAcomodacao"
                                 data-toggle="modal"
                                 data-target="#ModalMudarAcomodacao"
-                                onclick="setApartamentoCheckInt({{ apartamento.id }})"
+                                onclick="setApartamentoCheckInt('{{ apartamento.id }}')"
                             ></i>
                         </a>
                         <a class="icon-spacing" href="#">
-                            <i class="fa fa-sign-out icon-spacing" aria-hidden="true" title="Efetuar Check-Out" id="botaoCheckOut" data-toggle="modal" data-target="#ModalCheckOut" onclick="setApartamentoCheckOut({{ apartamento.pk }})"></i>
+                            <i
+                                class="fa fa-sign-out icon-spacing"
+                                aria-hidden="true"
+                                title="Efetuar Check-Out"
+                                id="botaoCheckOut"
+                                data-toggle="modal"
+                                data-target="#ModalCheckOut"
+                                onclick="setApartamentoCheckOut('{{ apartamento.pk }}')"
+                            ></i>
                         </a>
                     </div>
                     {% elif apartamento.tipostatus == 'Em manutenção' %}
@@ -1199,15 +1203,9 @@
                                     </div>
                                 </div>
 
-                                <style>
-                                    .custom-btn {
-                                        width: 120px; /* Defina a largura desejada para os botões */
-                                    }
-                                </style>
-
                                 <div class="modal-footer d-flex justify-content-center">
-                                    <button type="button" class="btn btn-danger flex-fill custom-btn" onclick="window.location.href='{% url 'apartHome' %}'">Sair</button>
-                                    <button type="button" class="btn btn-warning flex-fill custom-btn" onclick="redirecionarExtratoConsumo()">Extrato Consumo</button>
+                                    <a href="{% url 'apartHome' %}" class="btn btn-danger" style="width: 300px;">Sair</a>
+                                    <button type="button" class="btn btn-warning flex-fill custom-btn" style="width: 300px;" onclick="redirecionarExtratoConsumo()">Extrato Consumo</button>
                                 </div>
                             </div>
                         </div>
@@ -1321,12 +1319,6 @@
 
 <!-- ################### Modal Verificar Débito Atual - ( End ) ######################### -->
 
-
-
-
-
-
-
 <!-- ################### Modal Check-Out - ( Start ) ######################### -->
 
 <form method="post">
@@ -1341,14 +1333,14 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding-top: 2px; padding-bottom: 2px;">
                     <div class="container">
                         <div class="tab-content">
                             <!--************************************************************************-->
                             <div id="CheckOut" class="tab-pane fade show active">
-                                <div class="form-row">
-                                    <div class="form-group col-md-6 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: left;">Hóspede:</p>
+                                <div class="form-row" style="text-align: left; margin-bottom: 0px; margin-top: 0px;">
+                                    <div class="form-group col-md-6 mb-0">
+                                        <p class="inline" style="text-align: left; margin-bottom: -5px; margin-top: -5px;">Hóspede:</p>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -1356,95 +1348,119 @@
                                             <input id="myHospedeCheckOut" type="text" name="myHospedeCheckOut" class="form-control" readonly />
                                         </div>
                                     </div>
-                                    <div class="form-group col-md-4 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: left;">Apartamento:</p>
-                                        <input id="myApartamentoCheckOut" type="text" name="myApartamentoCheckOut" placeholder="Apartamento" class="inline" readonly />
+                                    <div class="form-group col-md-4 mb-0" style="text-align: left; margin-bottom: 2px;">
+                                        <p class="inline" style="text-align: left; margin-bottom: -5px; margin-top: -5px;">Apartamento:</p>
+                                        <input id="myApartamentoCheckOut" type="text" name="myApartamentoCheckOut" placeholder="Apartamento" class="form-control" readonly />
                                     </div>
                                     <div class="form-group col-md-2 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: left;">Hóspedes:</p>
-                                        <input style="text-align: center;" id="myQtdHospedesApartCheckOut" type="number" name="myQtdHospedesApartCheckOut" placeholder="Qtd. hóspedes" class="inline" readonly />
+                                        <p class="inline" style="text-align: left; margin-bottom: -5px; margin-top: -5px;">Hóspedes:</p>
+                                        <input style="text-align: center;" id="myQtdHospedesApartCheckOut" type="number" name="myQtdHospedesApartCheckOut" placeholder="Qtd. hóspedes" class="form-control" readonly />
                                     </div>
                                 </div>
-                                <div class="form-row">
+
+                                <div class="form-row" style="text-align: left; margin-bottom: 0px; margin-top: 0px;">
                                     <div class="form-group col-md-2 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: left;">Hospedado(s):</p>
+                                        <p class="inline" style="text-align: left; margin-bottom: -5px; margin-top: -5px;">Hospedado(s):</p>
                                         <input style="text-align: center;" id="myQtdHospedadosCheckOut" type="number" name="myQtdHospedadosCheckOut" placeholder="hospedados" class="inline" readonly />
                                     </div>
                                     <div class="form-group col-md-3 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: left; line-height: 38px;">Data Entrada</p>
+                                        <p class="inline" style="text-align: left; margin-bottom: -5px; margin-top: -5px;">Data Entrada</p>
                                         <input id="myEntradaCheckOut" type="date" name="myEntradaCheckOut" placeholder="Data entrada" class="inline" readonly />
                                     </div>
                                     <div class="form-group col-md-2 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: left;">Hora:</p>
-                                        <input id="myHoraEntradaCheckOut" type="time" name="myHoraEntradaCheckOut" placeholder="Hora entrada" class="inline" readonly />
+                                        <p class="inline" style="text-align: left; margin-bottom: -5px; margin-top: -5px;">Hora:</p>
+                                        <input style="text-align: center;" id="myHoraEntradaCheckOut" type="time" name="myHoraEntradaCheckOut" placeholder="Hora entrada" class="inline" readonly />
                                     </div>
                                     <div class="form-group col-md-3 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: left; line-height: 38px;">Data Saída</p>
+                                        <p class="inline" style="text-align: left; line-height: 38px; margin-bottom: -5px; margin-top: -5px;">Data Saída</p>
                                         <input id="mySaidaCheckOut" type="date" name="mySaidaCheckOut" placeholder="Data saída" class="inline" readonly />
                                     </div>
                                     <div class="form-group col-md-2 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: center;">Hora:</p>
+                                        <p class="inline" style="text-align: center; margin-bottom: -5px; margin-top: -5px;">Hora:</p>
                                         <input id="myHoraSaidaCheckOut" type="time" name="myHoraSaidaCheckOut" placeholder="Hora saida" class="inline" readonly />
                                     </div>
                                 </div>
-                                <div class="form-row">
+                                <div class="form-row" style="text-align: left; margin-bottom: 0px; margin-top: 0px;">
                                     <div class="form-group col-md-2 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: left;">Adiantamento:</p>
+                                        <p class="inline" style="text-align: left; margin-bottom: -5px; margin-top: -5px;">Adiantamento:</p>
                                         <input style="text-align: right;" id="myAdiantCheckOut" type="text" name="myAdiantCheckOut" placeholder="Valor antecipado" class="inline" readonly />
                                     </div>
                                     <div class="form-group col-md-8 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: left;">Observação:</p>
+                                        <p class="inline" style="text-align: left; margin-bottom: -5px; margin-top: -5px;">Observação:</p>
                                         <input id="myOBSCheckOut" type="text" name="myOBSCheckOut" placeholder="Observação" class="inline" readonly />
                                     </div>
                                     <div class="form-group col-md-2 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: left;">Qtd.Diárias:</p>
+                                        <p class="inline" style="text-align: left; margin-bottom: -5px; margin-top: -5px;">Qtd.Diárias:</p>
                                         <input style="text-align: center;" id="myQtdDiariasAtualCheckOut" type="text" name="myQtdDiariasAtualCheckOut" placeholder="Valor por excedente" class="inline" readonly />
                                     </div>
                                 </div>
                                 <div class="form-row">
-                                    <div class="form-group col-md-2 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: left;">V.Excedentes:</p>
+                                    <div class="form-group col-md-2 mb-0" style="text-align: left; margin-bottom: 1px; margin-top: 1px;">
+                                        <p class="inline" style="text-align: left; margin-bottom: -5px; margin-top: -5px;">V.Excedentes:</p>
                                         <input style="text-align: right;" id="myValorExcedenteCheckOut" type="text" name="myValorExcedenteCheckOut" placeholder="Valor por excedente" class="inline" readonly />
                                     </div>
-                                    <div class="form-group col-md-2 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: left;">Valor Consumo:</p>
+                                    <div class="form-group col-md-2 mb-0" style="text-align: left; margin-bottom: 1px; margin-top: 1px;">
+                                        <p class="inline" style="text-align: left; margin-bottom: -5px; margin-top: -5px;">Valor Consumo:</p>
                                         <input style="text-align: right;" id="myConsumoCheckOut" type="text" name="myConsumoCheckOut" placeholder="Valor consumo" class="inline" readonly />
                                     </div>
-                                    <div class="form-group col-md-2 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: left;">Valor Diárias:</p>
+                                    <div class="form-group col-md-2 mb-0" style="text-align: left; margin-bottom: 1px; margin-top: 1px;">
+                                        <p class="inline" style="text-align: left; margin-bottom: -5px; margin-top: -5px;">Valor Diárias:</p>
                                         <input style="text-align: right;" id="myValorDiariasCheckOut" type="text" name="myValorDiariasCheckOut" placeholder="Valor diárias" class="inline" readonly />
                                     </div>
 
-
-                                    <div class="form-group col-md-3 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: left;">Desconto %:</p>
+                                    <div class="form-group col-md-3 mb-0" style="text-align: left; margin-bottom: 1px; margin-top: 1px;">
+                                        <p class="inline" style="text-align: left; margin-bottom: -5px; margin-top: -5px;">Desconto %:</p>
                                         <input
                                             style="text-align: right; background-color: yellow; color: black; font-weight: bold;"
-                                            id="myDescontoCheckOut"
+                                            id="myDescontoCheckOutModalCheckOut"
                                             type="text"
-                                            name="myDescontoCheckOut"
+                                            name="myDescontoCheckOutModalCheckOut"
                                             placeholder="Desconto"
                                             class="inline"
                                             onblur="atualizarCheckOut()"
-                                            value="{{ myDescontoCheckOut }}"
+                                            value="{{ myDescontoCheckOutModalCheckOut }}"
                                         />
                                     </div>
 
                                     <div class="form-group col-md-3 mb-0" style="text-align: left;">
-                                        <p class="inline" style="text-align: left;">DÉBITO ATUAL:</p>
-                                        <input style="text-align: right; background-color: black; color: white; font-weight: bold;" id="myDebitoAtualCheckOut" type="text" name="myDebitoAtualCheckOut" placeholder="Débito atual" class="inline" readonly />
+                                        <p class="inline" style="text-align: left; margin-bottom: -5px; margin-top: -5px;">DÉBITO ATUAL:</p>
+                                        <input
+                                            style="text-align: right; background-color: black; color: white; font-weight: bold;"
+                                            id="myDebitoAtualCheckOut"
+                                            type="text"
+                                            name="myDebitoAtualCheckOut"
+                                            placeholder="Débito atual"
+                                            class="inline"
+                                            readonly
+                                        />
                                     </div>
                                 </div>
 
-                                <style>
-                                    .custom-btn {
-                                        width: 120px; /* Defina a largura desejada para os botões */
-                                    }
-                                </style>
+                                <div class="modal-footer">
+                                    <div class="form-row align-items-center" style="margin-top: 25px;">
+                                        <a href="{% url 'apartHome' %}" class="btn btn-danger" style="width: 200px;">Sair</a>
 
-                                <div class="modal-footer d-flex justify-content-center">
-                                    <button type="button" class="btn btn-danger flex-fill custom-btn" onclick="window.location.href='{% url 'apartHome' %}'">Sair</button>
-                                    <button type="button" class="btn btn-warning flex-fill custom-btn">Efetuar Check-Out</button>
+                                        <div class="form-group col-md mb-0" style="margin-top: -35px;">
+                                            <label for="tipoPagamento">Tipo de Pagamento:</label>
+                                            <select class="form-control" name="tipoPagamento" id="tipoPagamento" style="width: 200px;">
+                                                <option value="dinheiro">Dinheiro</option>
+                                                <option value="pix">PIX</option>
+                                                <option value="cartao_credito">Cartão de crédito</option>
+                                                <option value="cartao_debito">Cartão de débito</option>
+                                                <option value="transferencia_bancaria">Transf. bancária</option>
+                                                <option value="boleto_bancario">Boleto bancário</option>
+                                                <option value="cheque">Cheque</option>
+                                                <option value="paypal">PayPal</option>
+                                                <option value="cartao_refeicao">Cartão Refeição</option>
+                                                <option value="deposito">Depósito em conta</option>
+                                                <option value="credito_consumo">Crédito de Consumo</option>
+                                                <option value="voucher">Voucher</option>
+                                                <option value="outro">Outro</option>
+                                            </select>
+                                        </div>
+
+                                        <button type="button" class="btn btn-warning custom-btn" style="width: 200px;">Efetuar Check-Out</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1457,8 +1473,10 @@
 
 <script>
     // Inicializa o AutoNumeric no campo de desconto
-    const myDescontoCheckOut = new AutoNumeric("#myDescontoCheckOut", {
-        currencySymbol: "R$: ",
+
+    // Inicializa o AutoNumeric para o campo de desconto do modal "ModalCheckOut"
+    const myDescontoCheckOutModalCheckOut = new AutoNumeric("#myDescontoCheckOutModalCheckOut", {
+        currencySymbol: "R$ ",
         decimalCharacter: ",",
         digitGroupSeparator: ".",
         decimalPlaces: 2,
@@ -1474,7 +1492,7 @@
     }
 
     function atualizarCheckOut() {
-        const descontoCheckOut = myDescontoCheckOut.getNumber();
+        const descontoCheckOut = myDescontoCheckOutModalCheckOut.getNumber();
 
         // Obter os valores dos campos e atribuir zero se estiverem em branco
         const valorExcedenteCheckOutInput = document.getElementById("myValorExcedenteCheckOut").value.replace("R$ ", "").replace(".", "").replace(",", ".");

@@ -78,3 +78,8 @@ O projeto estará disponível em http://localhost:8000/.
 http://localhost:8000/admin/
 
 # 8. Adicione novos hóspedes e gerencie os existentes usando as funcionalidades CRUD disponíveis.
+
+Apoie o Projeto, Faça uma doação via Pix.
+Fale Conosco: (63) 9 9225-9154
+
+![Captura de Tela](qrcode_pix.png)

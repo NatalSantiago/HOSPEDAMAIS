@@ -1437,3 +1437,77 @@ def ConfirmarMudancaApart(request, apartAtualDesc, apartNovoDesc):
 
         return JsonResponse({'status': 'success'})
 
+
+
+
+
+
+from django.shortcuts import render, redirect
+from .models import MovimentosAparts, apartamentos
+from datetime import datetime
+from sweetify import sweetify
+
+def convert_currency_string_to_float(currency_string):
+    # Remove o símbolo de moeda (R$) e substitui vírgulas por pontos
+    cleaned_string = currency_string.replace('R$', '').replace('.', '').replace(',', '.')
+
+    # Verifica se a string limpa é vazia
+    if cleaned_string.strip() == '':
+        return 0.0  # Retorna 0.0 se não houver valor
+
+    # Tenta converter a string em um valor float
+    try:
+        return float(cleaned_string)
+    except ValueError:
+        return 0.0  # Retorna 0.0 se a conversão falhar
+
+
+
+def efetuar_check_out(request):
+    if request.method == 'POST':
+        apart_id = request.POST.get('myApartamentoCheckOut')
+        tipo_pagamento = request.POST.get('tipoPagamento')
+        observacao = request.POST.get('myOBSCheckOut')
+        qtd_hospedes = int(request.POST.get('myQtdHospedadosCheckOut', 0))
+        qtd_excedentes = int(request.POST.get('myQtdExcedentesCheckOut', 0))
+        valor_adiantamento = convert_currency_string_to_float(request.POST.get('myAdiantCheckOut', 0))
+        valor_pago_excedente = convert_currency_string_to_float(request.POST.get('myValorExcedenteCheckOut', 0))
+        valor_consumo = convert_currency_string_to_float(request.POST.get('myConsumoCheckOut', 0))
+        valor_total_conta = convert_currency_string_to_float(request.POST.get('myDebitoAtualCheckOut', 0))
+        valor_desconto = convert_currency_string_to_float(request.POST.get('myDescontoCheckOutModalCheckOut', 0))
+        valor_total_pago = valor_total_conta - valor_desconto
+
+        try:
+            apart = apartamentos.objects.get(descricao=apart_id)
+            movimento = MovimentosAparts.objects.get(apartamento=apart, pago_sn='N')
+
+            # Update the MovimentosAparts entry fields
+            movimento.data_checkout = datetime.today().date()
+            movimento.hora_checkout = datetime.now().time()
+            movimento.qtd_hospedes = qtd_hospedes
+            movimento.qtd_excedentes = qtd_excedentes
+            movimento.valor_adiantamento = valor_adiantamento
+            movimento.valor_pago_excedente = valor_pago_excedente
+            movimento.valor_consumo = valor_consumo
+            movimento.forma_pagamento = tipo_pagamento
+            movimento.data_fechamento = datetime.today().date()
+            movimento.hora_fechamento = datetime.now().time()
+            movimento.valor_total_conta = valor_total_conta
+            movimento.valor_desconto = valor_desconto
+            movimento.valor_total_pago = valor_total_pago
+            movimento.observacao = observacao
+            movimento.pago_sn = 'S'
+
+            # Update the apartment's tipostatus
+            apart.tipostatus = 'Livre'
+
+            # Save the updated model instances
+            movimento.save()
+            apart.save()
+
+            sweetify.success(request, 'Check-Out realizado com sucesso    !  !', persistent='OK')
+            return redirect('apartHome')
+
+        except (apartamentos.DoesNotExist, MovimentosAparts.DoesNotExist):
+            sweetify.erro(request, 'ERRO ao tentar efetuar o Check-Out   !  !', persistent='OK')
+            return redirect('apartHome')

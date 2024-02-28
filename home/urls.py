@@ -103,4 +103,6 @@ urlpatterns = [
 
     path('apartamento/<str:apartAtualDesc>/<str:apartNovoDesc>/ConfirmarMudancaApart/', views.ConfirmarMudancaApart, name='ConfirmarMudancaApart'),
 
+    path('efetuar_check_out/', views.efetuar_check_out, name='efetuar_check_out'),
+
 ]

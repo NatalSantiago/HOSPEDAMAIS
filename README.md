@@ -43,7 +43,7 @@ senha..: maria123456789
 
 # 1. Clone o repositório:
 
-git clone https://github.com/NatalSantiago/hospedamais-sqlite.git
+git clone https://github.com/NatalSantiago/HOSPEDAMAIS
 
 cd hospedamais-sqlite
 
